@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+// import './proxy';
+import Index from './pages/home';
+import Category from "./pages/Category/Category";
+import Customer from "./pages/Customer/Customer";
+import Employee from "./pages/Employee/Employee";
+import Order from "./pages/Order/Order";
+import Payment from "./pages/Payment/Payment";
+import Book from "./pages/Book/Book";
+import AddBook from "./pages/Book/AddBook";
+import Login from "./pages/login";
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/category" element={<Category />} />
+        <Route path="/employee" element={<Employee />} />
+        <Route path="/customer" element={<Customer />} />
+        <Route path="/order" element={<Order />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/book" element={<Book />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/AddBook" element={<AddBook />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
