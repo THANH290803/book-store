@@ -1,9 +1,86 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
+import axios from 'axios';
 
 function Payment() {
+
+    const [payments, setPayments] = useState([]);
+
+    useEffect(() => {
+        fetch('https://localhost:44372/api/Payment')
+            .then(response => response.json())
+            .then(data => setPayments(data))
+            .catch(error => console.error('Error fetching payments:', error));
+    }, []);
+
+
+    // thêm paymnet
+
+    const [name, setName] = useState('');
+
+    const handleSubmit = async () => {
+        try {
+            const response = await axios.post('https://localhost:44372/api/Payment', {
+                name: name
+            });
+
+            // Nếu muốn thực hiện một số hành động sau khi thêm thanh toán thành công,
+            // bạn có thể thêm mã ở đây.
+
+            console.log('Payment added successfully:', response.data);
+        } catch (error) {
+            console.error('Failed to add payment:', error);
+        }
+    };
+
+    // Edit Payment
+
+    const [selectedPayment, setSelectedPayment] = useState(null);
+
+    const handleEditButtonClick = async (id) => {
+        try {
+            const response = await axios.get(`https://localhost:44372/api/Payment/id=${id}`);
+
+            if (response.data) {
+                setSelectedPayment(response.data);
+            } else {
+                console.error('No data returned from the API');
+            }
+        } catch (error) {
+            console.error('Error while fetching payment data:', error);
+        }
+    };
+
+    const handleNameChange = (e) => {
+        setSelectedPayment({ ...selectedPayment, Name: e.target.value });
+    };
+
+    const handleSaveChanges = async () => {
+        try {
+            await axios.put(`https://localhost:44372/api/Payment/id=${selectedPayment.Id}`, selectedPayment);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error while saving changes:', error);
+        }
+    };
+
+    // Xóa Payment
+
+    const handleDeleteCategory = async (id) => {
+        try {
+            // Gọi API để xóa category có id tương ứng
+            await axios.delete(`https://localhost:44372/api/Payment/id=${id}`);
+
+            // Tải lại trang sau khi xóa thành công
+            window.location.reload();
+        } catch (error) {
+            console.error('Error while deleting category:', error);
+        }
+    };
+
+
 
     useEffect(() => {
         startTime();
@@ -137,58 +214,27 @@ function Payment() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>Trả tiền mặt</td>
-                                                    <td>
-                                                        {/* Button trigger modal */}
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-success"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#editpayment"
-                                                            style={{ marginRight: "10px" }}
-                                                        >
-                                                            <i className="fa-regular fa-pen-to-square" />
-                                                        </button>
-                                                        <button className="btn btn-danger">
-                                                            <i className="fa-solid fa-trash" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>PayPal</td>
-                                                    <td>
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-success"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#editpayment"
-                                                            style={{ marginRight: "10px" }}
-                                                        >
-                                                            <i className="fa-regular fa-pen-to-square" />
-                                                        </button>
-                                                        <button className="btn btn-danger">
-                                                            <i className="fa-solid fa-trash" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>VISA</td>
-                                                    <td>
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-success"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#editpayment"
-                                                            style={{ marginRight: "10px" }}
-                                                        >
-                                                            <i className="fa-regular fa-pen-to-square" />
-                                                        </button>
-                                                        <button className="btn btn-danger">
-                                                            <i className="fa-solid fa-trash" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
+                                                {payments.map(payment => (
+                                                    <tr key={payment.Id}>
+                                                        <td>{payment.Name}</td>
+                                                        <td>
+                                                            {/* Button trigger modal */}
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-success"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editpayment"
+                                                                style={{ marginRight: "10px" }}
+                                                                onClick={() => handleEditButtonClick(payment.Id)}
+                                                            >
+                                                                <i className="fa-regular fa-pen-to-square" />
+                                                            </button>
+                                                            <button className="btn btn-danger" onClick={() => handleDeleteCategory(payment.Id)}>
+                                                                <i className="fa-solid fa-trash" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
                                             </tbody>
                                         </table>
                                     </div>
@@ -228,7 +274,7 @@ function Payment() {
                                         <label htmlFor="name_pay_edit" className="form-label">
                                             Tên phương thức thanh toán mới
                                         </label>
-                                        <input type="text" className="form-control" id="name_pay_edit" />
+                                        <input type="text" className="form-control" id="name_pay_edit" value={selectedPayment?.Name} onChange={handleNameChange} />
                                     </div>
                                 </div>
                                 <div className="modal-footer">
@@ -239,7 +285,7 @@ function Payment() {
                                     >
                                         Hủy bỏ
                                     </button>
-                                    <button type="button" className="btn btn-primary">
+                                    <button type="button" onClick={handleSaveChanges} className="btn btn-primary">
                                         Cập nhật
                                     </button>
                                 </div>
@@ -256,7 +302,7 @@ function Payment() {
                         aria-hidden="true"
                     >
                         <div className="modal-dialog">
-                            <div className="modal-content">
+                            <form className="modal-content" onSubmit={handleSubmit}>
                                 <div className="modal-header">
                                     <h1 className="modal-title fs-5" id="addBackdropLabel">
                                         Thêm phương thức thanh toán
@@ -274,7 +320,7 @@ function Payment() {
                                         <label htmlFor="name_pay_add" className="form-label">
                                             Tên phương thức thanh toán mới
                                         </label>
-                                        <input type="text" className="form-control" id="name_pay_add" />
+                                        <input type="text" value={name} className="form-control" id="name_pay_add" onChange={(e) => setName(e.target.value)} />
                                     </div>
                                 </div>
                                 <div className="modal-footer">
@@ -285,11 +331,11 @@ function Payment() {
                                     >
                                         Hủy bỏ
                                     </button>
-                                    <button type="button" className="btn btn-primary">
+                                    <button type="submit" className="btn btn-primary">
                                         Thêm mới
                                     </button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </>

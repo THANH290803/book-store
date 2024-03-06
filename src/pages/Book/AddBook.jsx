@@ -13,7 +13,7 @@ function Book() {
     const [publishYear, setPublishYear] = useState('');
     const [publisher, setPublisher] = useState('');
     const [author, setAuthor] = useState('');
-    const [categoryId, setCategoryId] = useState('');
+    const [categoryId, setCategoryId] = useState(0);
     const [categoryOptions, setCategoryOptions] = useState([]);
 
     useEffect(() => {
@@ -24,25 +24,25 @@ function Book() {
             .catch(error => console.error('Error fetching categories:', error));
     }, []);
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
         const newBook = {
-            isbn: isbn,
-            name: name,
-            price: price,
-            description: description,
-            imageUrl: imageUrl,
-            publishYear: publishYear,
-            publisher: publisher,
-            author: author,
-            categoryId: categoryId
+            isbn,
+            name,
+            price,
+            description,
+            imageUrl,
+            publishYear,
+            publisher,
+            author,
+            categoryId
         };
 
         console.log(newBook);
 
         try {
-            const response = await fetch('https://localhost:44372/api/Book', {
+            const response = await fetch('https://localhost:44372/api/Book/AddBook', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -50,17 +50,18 @@ function Book() {
                 body: JSON.stringify(newBook)
             });
 
-
             if (response.ok) {
+                // Xử lý thành công, có thể hiển thị thông báo hoặc thực hiện các hành động khác
                 console.log('Book added successfully!');
-                // Điều hướng hoặc cập nhật danh sách sách ở đây nếu cần
             } else {
-                console.error('Failed to add book');
+                // Xử lý lỗi từ phản hồi của API
+                console.error('Failed to add book:', response.statusText);
             }
         } catch (error) {
             console.error('Error adding book:', error);
         }
     };
+
 
     useEffect(() => {
         startTime();
@@ -239,21 +240,19 @@ function Book() {
                                             <label htmlFor="author1" className="form-label">
                                                 Năm xuất bản
                                             </label>
-                                            <input type="datetime-local" className="form-control" id="publish_year1"
+                                            <input type="text" className="form-control" id="publish_year1"
                                                 value={publishYear} onChange={(e) => setPublishYear(e.target.value)} required />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="cate1" className="form-label">
                                                 Danh mục
                                             </label>
-                                            <input type="text" className="form-control" id="cate1"
-                                                value={categoryId} onChange={(e) => setCategoryId(e.target.value)} />
-                                            {/* <select className="form-control" id="cate1" required>
-                                                <option disabled>-- Chọn danh mục --</option>
+                                            <select className="form-control" id="cate1" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
+                                                <option value={0}>-- Chọn danh mục --</option>
                                                 {categoryOptions.map(option => (
-                                                    <option key={option.Id} value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>{option.Name}</option>
+                                                    <option key={option.Id} value={option.Id}>{option.Name}</option>
                                                 ))}
-                                            </select> */}
+                                            </select>
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="des1" className="form-label">
