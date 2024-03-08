@@ -4,17 +4,12 @@ import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-function Book() {
-    // const history = useHistory();
-    const [isbn, setIsbn] = useState('');
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
-    const [description, setDescription] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
-    const [publishYear, setPublishYear] = useState('');
-    const [publisher, setPublisher] = useState('');
-    const [author, setAuthor] = useState('');
+function EditBook() {
+    const { id } = useParams();
+    const [book, setBook] = useState(null);
+
     const [categoryName, setCategoryName] = useState(null);
     const [categoryId, setCategoryId] = useState(0);
     const [categoryOptions, setCategoryOptions] = useState([]);
@@ -27,35 +22,23 @@ function Book() {
             .catch(error => console.error('Error fetching categories:', error));
     }, []);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        const fetchBookDetails = async () => {
+            try {
+                const response = await fetch(`https://localhost:44372/api/Book/id=${id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setBook(data);
+                } else {
+                    console.error('Failed to fetch book details:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching book details:', error);
+            }
+        };
 
-        try {
-            const response = await axios.post('https://localhost:44372/api/Book/AddBook', {
-                isbn,
-                name,
-                price,
-                description,
-                imageUrl,
-                publishYear: parseInt(publishYear), // Convert to number
-                publisher,
-                author,
-                categoryId,
-                categoryName
-            });
-
-            console.log(response);
-
-
-            console.log('Book added successfully!');
-
-            // Change window location to '/book'
-            window.location.href = '/book';
-
-        } catch (error) {
-            console.error('Error adding book:', error);
-        }
-    };
+        fetchBookDetails();
+    }, [id]);
 
 
     useEffect(() => {
@@ -163,7 +146,7 @@ function Book() {
                                         }}
                                     >
                                         <div>
-                                            Quản lý sách / Thêm sách
+                                            Quản lý sách / Sửa sách
                                         </div>
                                         <div style={{ marginLeft: 750 }}>
                                             <div id="current-time" />
@@ -180,31 +163,28 @@ function Book() {
                                     <div className="card-header">
                                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                                             <div style={{ marginTop: 5 }}>
-                                                <i className="fa-solid fa-book"></i> Thêm sách
+                                                <i className="fa-solid fa-book"></i> Sửa sách
                                             </div>
                                         </div>
                                     </div>
-                                    <form className="card-body" onSubmit={handleSubmit}>
+                                    <form className="card-body">
                                         <div className="mb-3">
                                             <label htmlFor="isbn1" className="form-label">
                                                 Mã ISBN
                                             </label>
-                                            <input type="text" className="form-control"
-                                                value={isbn} onChange={(e) => setIsbn(e.target.value)} required />
+                                            <input type="text" className="form-control" value={book ? book.Isbn : ''} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="name_book_edit" className="form-label">
                                                 Tên sách
                                             </label>
-                                            <input type="text" className="form-control"
-                                                value={name} onChange={(e) => setName(e.target.value)} required />
+                                            <input type="text" className="form-control" value={book ? book.Name : ''} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="price1" className="form-label">
                                                 Giá
                                             </label>
-                                            <input type="number" className="form-control"
-                                                value={price} onChange={(e) => setPrice(e.target.value)} required />
+                                            <input type="number" className="form-control" value={book ? book.Price : ''} />
                                         </div>
                                         <div className="mb-3">
                                             <label className="form-label" htmlFor="inputGroupFile02">
@@ -215,41 +195,49 @@ function Book() {
                                                     <img src={selectedImage} alt="Selected" style={{ maxWidth: '100%', marginBottom: "15px" }} />
                                                 </div>
                                             )} */}
-                                            <input type="file" className="form-control" onChange={(e) => setImageUrl(e.target.value)} value={imageUrl} required />
+                                            <input type="file" className="form-control" />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="publisher1" className="form-label">
                                                 Nhà xuất bản
                                             </label>
-                                            <input type="text" className="form-control"
-                                                value={publisher} onChange={(e) => setPublisher(e.target.value)} required />
+                                            <input type="text" className="form-control" value={book ? book.Publisher : ''} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="author1" className="form-label">
                                                 Tác giả
                                             </label>
-                                            <input type="text" className="form-control"
-                                                value={author} onChange={(e) => setAuthor(e.target.value)} required />
+                                            <input type="text" className="form-control" value={book ? book.Author : ''} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="author1" className="form-label">
                                                 Năm xuất bản
                                             </label>
-                                            <input type="text" className="form-control"
-                                                value={publishYear} onChange={(e) => setPublishYear(e.target.value)} required />
+                                            <input type="text" className="form-control" value={book ? book.PublishYear : ''} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="cate1" className="form-label">
                                                 Danh mục
                                             </label>
-                                            <select className="form-select" value={categoryId} onChange={(e) => {
-                                                setCategoryId(e.target.value);
-                                                const selectedCategory = categoryOptions.find(option => option.Id === parseInt(e.target.value));
-                                                setCategoryName(selectedCategory ? selectedCategory.Name : null);
-                                            }} required>
+                                            <select
+                                                className="form-select"
+                                                value={categoryId}
+                                                onChange={(e) => {
+                                                    setCategoryId(e.target.value);
+                                                    const selectedCategory = categoryOptions.find(option => option.id === parseInt(e.target.value));
+                                                    setCategoryName(selectedCategory ? selectedCategory.name : null);
+                                                }}
+                                                required
+                                            >
                                                 <option value={0}>-- Chọn danh mục --</option>
                                                 {categoryOptions.map(option => (
-                                                    <option key={option.Id} value={option.Id}>{option.Name}</option>
+                                                    <option
+                                                        key={option.id}
+                                                        value={option.id}
+                                                        selected={book.CategoryId == option.Id} // Set selected attribute conditionally
+                                                    >
+                                                        {option.Name}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </div>
@@ -257,7 +245,7 @@ function Book() {
                                             <label htmlFor="des1" className="form-label">
                                                 Mô tả
                                             </label>
-                                            <textarea type="text" className="form-control" onChange={(e) => setDescription(e.target.value)} required></textarea>
+                                            <textarea type="text" className="form-control" value={book ? book.Description : ''}></textarea>
                                         </div>
                                         <div className="mb-3">
                                             {/* <label htmlFor="author1" className="form-label">
@@ -266,7 +254,7 @@ function Book() {
                                         </div>
                                         <div className="mb-3">
                                             <button type="submit" className="btn btn-primary" style={{ float: 'right' }}>
-                                                Thêm mới
+                                                Cập nhập
                                             </button>
                                         </div>
                                     </form>
@@ -286,4 +274,4 @@ function Book() {
     );
 }
 
-export default Book;
+export default EditBook;

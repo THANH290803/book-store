@@ -1,9 +1,130 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
+import axios from 'axios';
 
 function Employee() {
+    const [admins, setAdmins] = useState([]);
+
+    useEffect(() => {
+        const fetchCustomers = async () => {
+            try {
+                const response = await axios.get('https://localhost:44372/api/Admin');
+                setAdmins(response.data);
+            } catch (error) {
+                console.error('Error fetching customer data:', error);
+            }
+        };
+
+        fetchCustomers();
+    }, []);
+
+
+    // Thêm admin
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [roleName, setRoleName] = useState(null);
+    const [roleId, setRoleId] = useState(0);
+    const [roleOptions, setRoleOptions] = useState([]);
+
+    useEffect(() => {
+        // Gọi API để lấy dữ liệu role khi component được render
+        fetch('https://localhost:44372/api/Role')
+            .then(response => response.json())
+            .then(data => setRoleOptions(data))
+            .catch(error => console.error('Error fetching roles:', error));
+    }, []);
+
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post('https://localhost:44372/api/Admin', {
+                username,
+                password,
+                email,
+                fullName,
+                roleId,
+                roleName
+            });
+
+            console.log(response);
+
+            console.log('Admin added successfully!');
+
+            // Change window location to '/admin'
+            window.location.reload();
+
+        } catch (error) {
+            console.error('Error adding admin:', error);
+        }
+    };
+
+    const [selectedAdmin, setSelectedAdmin] = useState(null);
+
+    const handleEditButtonClick = async (id) => {
+        try {
+            const response = await axios.get(`https://localhost:44372/api/Admin/id=${id}`);
+
+            if (response.data) {
+                setSelectedAdmin(response.data);
+            } else {
+                console.error('No data returned from the API');
+            }
+        } catch (error) {
+            console.error('Error while fetching admin data:', error);
+        }
+    };
+
+    const handleNameChange = (e) => {
+        setSelectedAdmin({ ...selectedAdmin, Username: e.target.value });
+        // setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
+    };
+
+    const handlePasswordChange = (e) => {
+        setSelectedAdmin({ ...selectedAdmin, Password: e.target.value });
+        // setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
+    };
+
+    const handleEmailChange = (e) => {
+        setSelectedAdmin({ ...selectedAdmin, Email: e.target.value });
+        // setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
+    };
+
+    const handleFullNameChange = (e) => {
+        setSelectedAdmin({ ...selectedAdmin, FullName: e.target.value });
+        // setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
+    };
+
+    const handleRoleIdChange = (e) => {
+        setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
+    };
+
+    const handleSaveChanges = async () => {
+        try {
+            await axios.put(`https://localhost:44372/api/Admin/id=${selectedAdmin.Id}`, selectedAdmin);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error while saving changes:', error);
+        }
+    };
+
+
+    const handleDeleteCategory = async (id) => {
+        try {
+            // Gọi API để xóa category có id tương ứng
+            await axios.delete(`https://localhost:44372/api/Admin/id=${id}`);
+
+            // Tải lại trang sau khi xóa thành công
+            window.location.reload();
+        } catch (error) {
+            console.error('Error while deleting category:', error);
+        }
+    };
 
     useEffect(() => {
         startTime();
@@ -132,76 +253,38 @@ function Employee() {
                                         <table className="table table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th>ID</th>
                                                     <th>Tên nhân viên</th>
-                                                    <th>Số điện thoại</th>
+                                                    <th>Username</th>
                                                     <th>Email</th>
                                                     <th>Quyền</th>
                                                     <th>Hành động</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>A</td>
-                                                    <td>111111111</td>
-                                                    <td>a@gmail</td>
-                                                    <td>Admin</td>
-                                                    <td>
-                                                        {/* Button trigger modal */}
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-success"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#editemployee"
-                                                        >
-                                                            <i className="fa-regular fa-pen-to-square" />
-                                                        </button>
-                                                        <button className="btn btn-danger">
-                                                            <i className="fa-solid fa-trash" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td>B</td>
-                                                    <td>222222222</td>
-                                                    <td>b@gmail</td>
-                                                    <td>Nhân viên</td>
-                                                    <td>
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-success"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#editemployee"
-                                                        >
-                                                            <i className="fa-regular fa-pen-to-square" />
-                                                        </button>
-                                                        <button className="btn btn-danger">
-                                                            <i className="fa-solid fa-trash" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>3</td>
-                                                    <td>C</td>
-                                                    <td>33333333333</td>
-                                                    <td>c@gmail</td>
-                                                    <td>Nhân viên</td>
-                                                    <td>
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-success"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#editemployee"
-                                                        >
-                                                            <i className="fa-regular fa-pen-to-square" />
-                                                        </button>
-                                                        <button className="btn btn-danger">
-                                                            <i className="fa-solid fa-trash" />
-                                                        </button>
-                                                    </td>
-                                                </tr>
+                                                {admins.map((admin) => (
+                                                    <tr>
+                                                        <td>{admin.FullName}</td>
+                                                        <td>{admin.Username}</td>
+                                                        <td>{admin.Email}</td>
+                                                        <td>{admin.RoleName}</td>
+                                                        <td>
+                                                            {/* Button trigger modal */}
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-success"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#editemployee"
+                                                                style={{ marginRight: "15px" }}
+                                                                onClick={() => handleEditButtonClick(admin.Id)}
+                                                            >
+                                                                <i className="fa-regular fa-pen-to-square" />
+                                                            </button>
+                                                            <button className="btn btn-danger" onClick={() => handleDeleteCategory(admin.Id)}>
+                                                                <i className="fa-solid fa-trash" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
                                             </tbody>
                                         </table>
                                     </div>
@@ -214,101 +297,6 @@ function Employee() {
                     <Footer />
                 </div>
 
-                {/*Modal*/}
-                <>
-                    <div
-                        className="modal fade"
-                        id="editcategory"
-                        data-bs-backdrop="static"
-                        data-bs-keyboard="false"
-                        tabIndex={-1}
-                        aria-labelledby="staticBackdropLabel"
-                        aria-hidden="true"
-                    >
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h1 className="modal-title fs-5" id="editBackdropLabel">
-                                        Cập nhật danh mục
-                                    </h1>
-                                    <button
-                                        type="button"
-                                        className="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    />
-                                </div>
-                                <div className="modal-body">
-                                    <input type="hidden" id="id_pay_edit" />
-                                    <div className="mb-3">
-                                        <label htmlFor="name_pay_edit" className="form-label">
-                                            Tên danh mục
-                                        </label>
-                                        <input type="text" className="form-control" id="name_pay_edit" />
-                                    </div>
-                                </div>
-                                <div className="modal-footer">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        data-bs-dismiss="modal"
-                                    >
-                                        Hủy bỏ
-                                    </button>
-                                    <button type="button" className="btn btn-primary">
-                                        Cập nhật
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        className="modal fade"
-                        id="addcategory"
-                        data-bs-backdrop="static"
-                        data-bs-keyboard="false"
-                        tabIndex={-1}
-                        aria-labelledby="staticBackdropLabel"
-                        aria-hidden="true"
-                    >
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h1 className="modal-title fs-5" id="addBackdropLabel">
-                                        Thêm danh mục
-                                    </h1>
-                                    <button
-                                        type="button"
-                                        className="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    />
-                                </div>
-                                <div className="modal-body">
-                                    <input type="hidden" id="id_pay_add" />
-                                    <div className="mb-3">
-                                        <label htmlFor="name_pay_add" className="form-label">
-                                            Tên danh mục mới
-                                        </label>
-                                        <input type="text" className="form-control" id="name_pay_add" />
-                                    </div>
-                                </div>
-                                <div className="modal-footer">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        data-bs-dismiss="modal"
-                                    >
-                                        Hủy bỏ
-                                    </button>
-                                    <button type="button" className="btn btn-primary">
-                                        Thêm mới
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </>
 
                 {/*    Modal*/}
                 <>
@@ -322,7 +310,7 @@ function Employee() {
                         aria-hidden="true"
                     >
                         <div className="modal-dialog">
-                            <div className="modal-content">
+                            <form className="modal-content" onClick={handleSaveChanges}>
                                 <div className="modal-header">
                                     <h1 className="modal-title fs-5" id="editBackdropLabel">
                                         Cập nhật nhân viên
@@ -340,37 +328,42 @@ function Employee() {
                                         <label htmlFor="name_em_edit" className="form-label">
                                             Tên nhân viên
                                         </label>
-                                        <input type="text" className="form-control" id="name_em_edit" />
+                                        <input type="text" className="form-control" value={selectedAdmin?.FullName} onChange={handleFullNameChange} />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="phone" className="form-label">
-                                            Số diện thoại
+                                            Username
                                         </label>
-                                        <input type="text" className="form-control" id="phone" />
+                                        <input type="text" className="form-control" value={selectedAdmin?.Username} onChange={handleNameChange} />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="email" className="form-label">
                                             Email
                                         </label>
-                                        <input type="text" className="form-control" id="email" />
+                                        <input type="text" className="form-control" value={selectedAdmin?.Email} onChange={handleEmailChange} />
                                     </div>
                                     <div className="mb-3">
-                                        <label htmlFor="address" className="form-label">
-                                            Địa chỉ
+                                        <label htmlFor="phone" className="form-label">
+                                            Password
                                         </label>
-                                        <input type="text" className="form-control" id="address" />
+                                        <input type="password" className="form-control" value={selectedAdmin?.Password} onChange={handlePasswordChange} />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="role" className="form-label">
                                             Quyền
                                         </label>
-                                        <input type="text" className="form-control" id="role" />
+
+                                        <select className="form-select" value={roleId} onChange={(e) => {
+                                            setRoleId(e.target.value);
+                                            const selectedRole = roleOptions.find(option => option.Id === parseInt(e.target.value));
+                                            setRoleName(selectedRole ? selectedRole.Name : null);
+                                        }} required>
+                                            <option value={0}>-- Chọn vai trò --</option>
+                                            {roleOptions.map(option => (
+                                                <option key={option.Id} value={option.Id}>{option.Name}</option>
+                                            ))}
+                                        </select>
                                     </div>
-                                    <select className="form-select" aria-label="Default select example">
-                                        <option selected="">Quyền</option>
-                                        <option value={1}>Quản trị viên</option>
-                                        <option value={2}>Nhân viên</option>
-                                    </select>
                                 </div>
                                 <div className="modal-footer">
                                     <button
@@ -380,11 +373,11 @@ function Employee() {
                                     >
                                         Hủy bỏ
                                     </button>
-                                    <button type="button" className="btn btn-primary">
+                                    <button type="submit" className="btn btn-primary">
                                         Cập nhật
                                     </button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                     <div
@@ -396,11 +389,11 @@ function Employee() {
                         aria-labelledby="staticBackdropLabel"
                         aria-hidden="true"
                     >
-                        <div className="modal-dialog">
+                        <form className="modal-dialog" onSubmit={handleSubmit}>
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h1 className="modal-title fs-5" id="addBackdropLabel">
-                                        Cập nhật nhân viên
+                                        Thêm nhân viên
                                     </h1>
                                     <button
                                         type="button"
@@ -410,36 +403,45 @@ function Employee() {
                                     />
                                 </div>
                                 <div className="modal-body">
-                                    <input type="hidden" id="id_em_add" />
                                     <div className="mb-3">
-                                        <label htmlFor="name_em_add" className="form-label">
-                                            Tên nhân viên mới
+                                        <label htmlFor="name_em_edit" className="form-label">
+                                            Tên nhân viên
                                         </label>
-                                        <input type="text" className="form-control" id="name_em_add" />
+                                        <input type="text" className="form-control" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                                     </div>
                                     <div className="mb-3">
-                                        <label htmlFor="phone1" className="form-label">
-                                            Số diện thoại
+                                        <label htmlFor="phone" className="form-label">
+                                            Username
                                         </label>
-                                        <input type="text" className="form-control" id="phone1" />
+                                        <input type="text" className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} />
                                     </div>
                                     <div className="mb-3">
-                                        <label htmlFor="email1" className="form-label">
+                                        <label htmlFor="email" className="form-label" >
                                             Email
                                         </label>
-                                        <input type="text" className="form-control" id="email1" />
+                                        <input type="text" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
                                     </div>
                                     <div className="mb-3">
-                                        <label htmlFor="address1" className="form-label">
-                                            Địa chỉ
+                                        <label htmlFor="phone" className="form-label">
+                                            Password
                                         </label>
-                                        <input type="text" className="form-control" id="address1" />
+                                        <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} />
                                     </div>
-                                    <select className="form-select" aria-label="Default select example">
-                                        <option selected="">Quyền</option>
-                                        <option value={1}>Quản trị viên</option>
-                                        <option value={2}>Nhân viên</option>
-                                    </select>
+                                    <div className="mb-3">
+                                        <label htmlFor="phone" className="form-label">
+                                            Vai trò
+                                        </label>
+                                        <select className="form-select" value={roleId} onChange={(e) => {
+                                            setRoleId(e.target.value);
+                                            const selectedRole = roleOptions.find(option => option.Id === parseInt(e.target.value));
+                                            setRoleName(selectedRole ? selectedRole.Name : null);
+                                        }} required>
+                                            <option value={0}>-- Chọn vai trò --</option>
+                                            {roleOptions.map(option => (
+                                                <option key={option.Id} value={option.Id}>{option.Name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                                 <div className="modal-footer">
                                     <button
@@ -449,12 +451,12 @@ function Employee() {
                                     >
                                         Hủy bỏ
                                     </button>
-                                    <button type="button" className="btn btn-primary">
+                                    <button type="submit" className="btn btn-primary">
                                         Thêm mới
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </>
 

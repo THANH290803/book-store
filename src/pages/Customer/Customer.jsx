@@ -1,9 +1,25 @@
-import React, {useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
+import axios from 'axios';
 
 function Customer() {
+    // HIỂN THỊ
+    const [customers, setCustomers] = useState([]);
+
+    useEffect(() => {
+        const fetchCustomers = async () => {
+            try {
+                const response = await axios.get('https://localhost:44372/api/Customer');
+                setCustomers(response.data);
+            } catch (error) {
+                console.error('Error fetching customer data:', error);
+            }
+        };
+
+        fetchCustomers();
+    }, []);
 
     useEffect(() => {
         startTime();
@@ -60,7 +76,7 @@ function Customer() {
         }, 500);
     }
 
-// Hàm này có tác dụng chuyển những số bé hơn 10 thành dạng 01, 02, 03, ...
+    // Hàm này có tác dụng chuyển những số bé hơn 10 thành dạng 01, 02, 03, ...
     function checkTime(i) {
         if (i < 10) {
             i = "0" + i;
@@ -70,9 +86,9 @@ function Customer() {
 
     return (
         <div className="sb-nav-fixed" onLoad={startTime}>
-            <Header/>
+            <Header />
             <div id="layoutSidenav">
-                <Navbar/>
+                <Navbar />
                 <div id="layoutSidenav_content">
 
                     <main>
@@ -96,108 +112,68 @@ function Customer() {
                                         }}
                                     >
                                         <div>Quản lý thông tin khách hàng</div>
-                                        <div/>
-                                        <div style={{marginLeft: 750}}>
-                                            <div id="current-time"/>
+                                        <div />
+                                        <div style={{ marginLeft: 750 }}>
+                                            <div id="current-time" />
                                             <div>
-                                                <div id="timer"/>
+                                                <div id="timer" />
                                             </div>
                                         </div>
                                     </li>
                                 </ol>
                             </div>
-                            <div style={{marginTop: 10}}/>
+                            <div style={{ marginTop: 10 }} />
                             <main>
                                 <div className="card mb-4">
                                     <div className="card-header">
-                                        <div style={{display: "flex", justifyContent: "space-between"}}>
-                                            <div style={{marginTop: 5}}>
-                                                <i className="fa-solid fa-users"/>
-                                                Khách hàng
+                                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                            <div style={{ marginTop: 5 }}>
+                                                <i className="fa-solid fa-users" />  Khách hàng
                                             </div>
                                             <div>
-                                                <button
+                                                {/* <button
                                                     type="button"
                                                     className="btn btn-primary add-payment"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#add_customer"
                                                 >
-                                                    <i className="fa-solid fa-plus"/>
+                                                    <i className="fa-solid fa-plus" />
                                                     Thêm khách hàng
-                                                </button>
+                                                </button> */}
                                             </div>
                                         </div>
                                     </div>
                                     <div className="card-body">
                                         <table className="table table-hover">
                                             <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Tên khách hàng</th>
-                                                <th>Số điện thoại</th>
-                                                <th>Email</th>
-                                                <th>Hành động</th>
-                                            </tr>
+                                                <tr>
+                                                    <th>Tên khách hàng</th>
+                                                    <th>Số điện thoại</th>
+                                                    <th>Email</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td>A</td>
-                                                <td>111111111</td>
-                                                <td>a@gmail</td>
-                                                <td>
-                                                    {/* Button trigger modal */}
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-success"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#edit_customer"
-                                                    >
-                                                        <i className="fa-regular fa-pen-to-square"/>
-                                                    </button>
-                                                    <button className="btn btn-danger">
-                                                        <i className="fa-solid fa-trash"/>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>2</td>
-                                                <td>B</td>
-                                                <td>222222222</td>
-                                                <td>b@gmail</td>
-                                                <td>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-success"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#edit_customer"
-                                                    >
-                                                        <i className="fa-regular fa-pen-to-square"/>
-                                                    </button>
-                                                    <button className="btn btn-danger">
-                                                        <i className="fa-solid fa-trash"/>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>3</td>
-                                                <td>C</td>
-                                                <td>33333333333</td>
-                                                <td>c@gmail</td>
-                                                <td>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-success"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#edit_customer"
-                                                    >
-                                                        <i className="fa-regular fa-pen-to-square"/>
-                                                    </button>
-                                                    <button className="btn btn-danger">
-                                                        <i className="fa-solid fa-trash"/>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                                {customers.map((customer) => (
+                                                    <tr key={customer.Id}>
+                                                        <td>{customer.FullName}</td>
+                                                        <td>{customer.PhoneNumber}</td>
+                                                        <td>{customer.Email}</td>
+                                                        {/* <td>
+                                                            Button trigger modal
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-success"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#edit_customer"
+                                                            >
+                                                                <i className="fa-regular fa-pen-to-square" />
+                                                            </button>
+                                                            <button className="btn btn-danger">
+                                                                <i className="fa-solid fa-trash" />
+                                                            </button>
+                                                        </td> */}
+                                                    </tr>
+                                                ))}
                                             </tbody>
                                         </table>
                                     </div>
@@ -206,7 +182,7 @@ function Customer() {
                         </div>
                     </main>
 
-                    <Footer/>
+                    <Footer />
                 </div>
 
                 {/*Modal*/}
@@ -234,12 +210,12 @@ function Customer() {
                                     />
                                 </div>
                                 <div className="modal-body">
-                                    <input type="hidden" id="id_pay_edit"/>
+                                    <input type="hidden" id="id_pay_edit" />
                                     <div className="mb-3">
                                         <label htmlFor="name_pay_edit" className="form-label">
                                             Tên danh mục
                                         </label>
-                                        <input type="text" className="form-control" id="name_pay_edit"/>
+                                        <input type="text" className="form-control" id="name_pay_edit" />
                                     </div>
                                 </div>
                                 <div className="modal-footer">
@@ -280,12 +256,12 @@ function Customer() {
                                     />
                                 </div>
                                 <div className="modal-body">
-                                    <input type="hidden" id="id_pay_add"/>
+                                    <input type="hidden" id="id_pay_add" />
                                     <div className="mb-3">
                                         <label htmlFor="name_pay_add" className="form-label">
                                             Tên danh mục mới
                                         </label>
-                                        <input type="text" className="form-control" id="name_pay_add"/>
+                                        <input type="text" className="form-control" id="name_pay_add" />
                                     </div>
                                 </div>
                                 <div className="modal-footer">

@@ -3,9 +3,11 @@ import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 function Book() {
     const [books, setBooks] = useState([]);
+
 
     useEffect(() => {
         fetch('https://localhost:44372/api/Book')
@@ -13,6 +15,18 @@ function Book() {
             .then(data => setBooks(data))
             .catch(error => console.error('Error fetching data:', error));
     }, []);
+
+    const handleDeleteCategory = async (id) => {
+        try {
+            // Gọi API để xóa category có id tương ứng
+            await axios.delete(`https://localhost:44372/api/Book/id=${id}`);
+
+            // Tải lại trang sau khi xóa thành công
+            window.location.reload();
+        } catch (error) {
+            console.error('Error while deleting category:', error);
+        }
+    };
 
     useEffect(() => {
         startTime();
@@ -164,16 +178,17 @@ function Book() {
                                                         <td width={"250px"}>{book.Author}</td>
                                                         <td width={"150px"}>{book.CategoryName}</td>
                                                         <td width={'225px'}>
-                                                            <button
+                                                            <Link to={'/EditBook/' + book.Id}
                                                                 type="button"
                                                                 className="btn btn-success"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#edit_book"
+                                                                // data-bs-toggle="modal"
+                                                                // data-bs-target="#edit_book"
                                                                 style={{ marginRight: '15px' }}
+                                                            // onClick={() => handleEditButtonClick(book.Id)}
                                                             >
                                                                 <i className="fa-regular fa-pen-to-square" />
-                                                            </button>
-                                                            <button className="btn btn-danger" style={{ marginRight: '15px' }}>
+                                                            </Link>
+                                                            <button className="btn btn-danger" onClick={() => handleDeleteCategory(book.Id)} style={{ marginRight: '15px' }}>
                                                                 <i className="fa-solid fa-trash" />
                                                             </button>
                                                             <button
@@ -295,100 +310,6 @@ function Book() {
                                     </button>
                                     <button type="button" className="btn btn-primary">
                                         Cập nhật
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        className="modal fade"
-                        id="add_book"
-                        data-bs-backdrop="static"
-                        data-bs-keyboard="false"
-                        tabIndex={-1}
-                        aria-labelledby="staticBackdropLabel"
-                        aria-hidden="true"
-                    >
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h1 className="modal-title fs-5" id="addBackdropLabel">
-                                        Thêm sách mới
-                                    </h1>
-                                    <button
-                                        type="button"
-                                        className="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    />
-                                </div>
-                                <div className="modal-body">
-                                    <input type="hidden" id="id_book_add" />
-                                    <div className="mb-3">
-                                        <label htmlFor="isbn1" className="form-label">
-                                            Mã ISBN
-                                        </label>
-                                        <input type="text" className="form-control" id="isbn1" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="name_book_edit" className="form-label">
-                                            Tên sách
-                                        </label>
-                                        <input type="text" className="form-control" id="name_book_edit" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="cate1" className="form-label">
-                                            Danh mục
-                                        </label>
-                                        <input type="text" className="form-control" id="cate1" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="price1" className="form-label">
-                                            Giá
-                                        </label>
-                                        <input type="number" className="form-control" id="price1" />
-                                    </div>
-                                    <div className="input-group mb-3">
-                                        <label className="input-group-text" htmlFor="inputGroupFile02">
-                                            Tải ảnh lên
-                                        </label>
-                                        <input type="file" className="form-control" id="inputGroupFile02" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="publisher1" className="form-label">
-                                            Nhà xuất bản
-                                        </label>
-                                        <input type="text" className="form-control" id="publisher1" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="author1" className="form-label">
-                                            Tác giả
-                                        </label>
-                                        <input type="text" className="form-control" id="author1" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="author1" className="form-label">
-                                            Năm xuất bản
-                                        </label>
-                                        <input type="text" className="form-control" id="publish_year1" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="des1" className="form-label">
-                                            Mô tả
-                                        </label>
-                                        <input type="text" className="form-control" id="des1" />
-                                    </div>
-                                </div>
-                                <div className="modal-footer">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        data-bs-dismiss="modal"
-                                    >
-                                        Hủy bỏ
-                                    </button>
-                                    <button type="button" className="btn btn-primary">
-                                        Thêm mới
                                     </button>
                                 </div>
                             </div>

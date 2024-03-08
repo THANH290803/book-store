@@ -1,17 +1,87 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
 
-function Order() {
-    const [orders, setOrders] = useState([]);
+function Permisstion() {
+    // Hiển thị quyền
+    const [permisstions, setPermisstions] = useState([]);
 
     useEffect(() => {
-        fetch('https://localhost:44372/api/Order')
-            .then(response => response.json())
-            .then(data => setOrders(data))
-            .catch(error => console.error('Error fetching orders:', error));
+        const fetchPermisstions = async () => {
+            try {
+                const response = await axios.get('https://localhost:44372/api/Permission');
+                setPermisstions(response.data);
+            } catch (error) {
+                console.error('Error fetching role data:', error);
+            }
+        };
+
+        fetchPermisstions();
     }, []);
+
+    // Thêm quyền
+    const [name, setPermisstionName] = useState('');
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        try {
+            const response = await axios.post('https://localhost:44372/api/Permission', {
+                name: name
+            });
+
+            window.location.reload();
+            // Xử lý thành công nếu cần
+            console.log('Permisstion added successfully');
+        } catch (error) {
+            console.error('Error adding permisstion:', error.message);
+        }
+
+
+    };
+
+    const [selectedPermisstion, setSelectedPermisstion] = useState(null);
+
+    const handleEditButtonClick = async (id) => {
+        try {
+            const response = await axios.get(`https://localhost:44372/api/Permission/id=${id}`);
+
+            if (response.data) {
+                setSelectedPermisstion(response.data);
+            } else {
+                console.error('No data returned from the API');
+            }
+        } catch (error) {
+            console.error('Error while fetching payment data:', error);
+        }
+    };
+
+    const handleNameChange = (e) => {
+        setSelectedPermisstion({ ...selectedPermisstion, Name: e.target.value });
+    };
+
+    const handleSaveChanges = async () => {
+        try {
+            await axios.put(`https://localhost:44372/api/Permission/id=${selectedPermisstion.Id}`, selectedPermisstion);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error while saving changes:', error);
+        }
+    };
+
+    const handleDeleteCategory = async (id) => {
+        try {
+            // Gọi API để xóa category có id tương ứng
+            await axios.delete(`https://localhost:44372/api/Permission/id=${id}`);
+
+            // Tải lại trang sau khi xóa thành công
+            window.location.reload();
+        } catch (error) {
+            console.error('Error while deleting category:', error);
+        }
+    };
 
     useEffect(() => {
         startTime();
@@ -103,7 +173,7 @@ function Order() {
                                             marginLeft: 10
                                         }}
                                     >
-                                        <div>Quản lý thông tin đơn hàng</div>
+                                        <div>Quản lý thông tin vai trò</div>
                                         <div />
                                         <div style={{ marginLeft: 750 }}>
                                             <div id="current-time" />
@@ -120,7 +190,17 @@ function Order() {
                                     <div className="card-header">
                                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                                             <div style={{ marginTop: 5 }}>
-                                                <i className="fa-solid fa-receipt" />  Đơn hàng
+                                                <i className="fa-solid fa-receipt" /> Vai trò
+                                            </div>
+                                            <div>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary add-payment"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#add_order"
+                                                >
+                                                    <i className="fa-solid fa-plus" /> Thêm quyền
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -128,81 +208,28 @@ function Order() {
                                         <table className="table table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th>Tên khách hàng</th>
-                                                    <th>Số điện thoại</th>
-                                                    <th>Dịa chỉ</th>
-                                                    <th>PTTT</th>
-                                                    <th>Trạng thái</th>
+                                                    <th>Tên vai trò</th>
                                                     <th>Hành động</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {orders.map(order => (
-                                                    <tr>
-                                                        <td key={order.id}>
-                                                            {(() => {
-                                                                if (order.NameCustomer == null) {
-                                                                    return order.CustomerName;
-                                                                } else {
-                                                                    return order.NameCustomer;
-                                                                }
-                                                            })()}
-                                                        </td>
+                                                {permisstions.map((permisstion) => (
+                                                    <tr key={permisstion.Id}>
+                                                        <td>{permisstion.Name}</td>
                                                         <td>
-                                                            {(() => {
-                                                                if (order.PhoneNumber == null) {
-                                                                    return order.CustomerPhone;
-                                                                } else {
-                                                                    return order.PhoneNumber;
-                                                                }
-                                                            })()}
-                                                        </td>
-                                                        <td>
-                                                            {(() => {
-                                                                if (order.Address == null) {
-                                                                    return order.CustomerAddress;
-                                                                } else {
-                                                                    return order.Address;
-                                                                }
-                                                            })()}
-                                                        </td>
-                                                        <td>{order.PaymentMethodName}</td>
-                                                        <td>
-                                                            {(() => {
-                                                                if (order.Status == 1) {
-                                                                    return "Chờ xử lý";
-                                                                } else if (order.Status == 2) {
-                                                                    return "Đã duyệt";
-                                                                } else if (order.Status == 3) {
-                                                                    return "Đang giao hàng"
-                                                                } else if (order.Status == 4) {
-                                                                    return "Hoàn thành"
-                                                                } else if (order.Status == 5) {
-                                                                    return "Hủy đơn hàng"
-                                                                }
-                                                            })()}
-                                                        </td>
-                                                        <td>
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-info"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#details_order"
-                                                            >
-                                                                <i
-                                                                    className="fa-solid fa-circle-info"
-                                                                    style={{ color: "white" }}
-                                                                />
-                                                            </button>
                                                             <button
                                                                 type="button"
                                                                 className="btn btn-success"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#edit_order"
+                                                                style={{ marginRight: "15px" }}
+                                                                onClick={() => handleEditButtonClick(permisstion.Id)}
                                                             >
                                                                 <i className="fa-regular fa-pen-to-square" />
                                                             </button>
-                                                            <button className="btn btn-danger">
+                                                            <button className="btn btn-danger"
+                                                                onClick={() => handleDeleteCategory(permisstion.Id)}
+                                                            >
                                                                 <i className="fa-solid fa-trash" />
                                                             </button>
                                                         </td>
@@ -247,11 +274,11 @@ function Order() {
                                 <input type="hidden" id="id_order_edit" />
                                 <div className="mb-3">
                                     <label htmlFor="phone" className="form-label">
-                                        Tên khách hàng
+                                        Tên vai trò
                                     </label>
-                                    <input type="text" className="form-control" id="phone" />
+                                    <input type="text" className="form-control" value={selectedPermisstion?.Name} onChange={handleNameChange} />
                                 </div>
-                                <div className="mb-3">
+                                {/* <div className="mb-3">
                                     <label htmlFor="name_em_edit" className="form-label">
                                         Địa chỉ nhận hàng
                                     </label>
@@ -262,13 +289,13 @@ function Order() {
                                         Số điện thoại
                                     </label>
                                     <input type="text" className="form-control" id="cate" />
-                                </div>
-                                <select className="form-select" aria-label="Default select example">
+                                </div> */}
+                                {/* <select className="form-select" aria-label="Default select example">
                                     <option selected="">Trạng thái</option>
                                     <option value={1}>Chờ duyệt</option>
                                     <option value={2}>Two</option>
                                     <option value={3}>Three</option>
-                                </select>
+                                </select> */}
                             </div>
                             <div className="modal-footer">
                                 <button
@@ -278,7 +305,7 @@ function Order() {
                                 >
                                     Hủy bỏ
                                 </button>
-                                <button type="button" className="btn btn-primary">
+                                <button type="button" onClick={handleSaveChanges} className="btn btn-primary">
                                     Cập nhật
                                 </button>
                             </div>
@@ -296,11 +323,11 @@ function Order() {
                         aria-labelledby="staticBackdropLabel"
                         aria-hidden="true"
                     >
-                        <div className="modal-dialog">
+                        <form className="modal-dialog" onSubmit={handleSubmit}>
                             <div className="modal-content">
                                 <div className="modal-header">
                                     <h1 className="modal-title fs-5" id="addBackdropLabel">
-                                        Thêm đơn hàng mới
+                                        Thêm quyền mới
                                     </h1>
                                     <button
                                         type="button"
@@ -313,28 +340,11 @@ function Order() {
                                     <input type="hidden" id="id_order_add" />
                                     <div className="mb-3">
                                         <label htmlFor="phone" className="form-label">
-                                            Tên khách hàng
+                                            Tên quyền
                                         </label>
-                                        <input type="text" className="form-control" id="phone1" />
+                                        <input type="text" className="form-control" value={name}
+                                            onChange={(e) => setPermisstionName(e.target.value)} />
                                     </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="name_em_edit" className="form-label">
-                                            Địa chỉ nhận hàng
-                                        </label>
-                                        <input type="text" className="form-control" id="name_em_edit1" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="cate" className="form-label">
-                                            Số điện thoại
-                                        </label>
-                                        <input type="text" className="form-control" id="cate1" />
-                                    </div>
-                                    <select className="form-select" aria-label="Default select example">
-                                        <option selected="">Trạng thái</option>
-                                        <option value={1}>Chờ duyệt</option>
-                                        <option value={2}>Two</option>
-                                        <option value={3}>Three</option>
-                                    </select>
                                 </div>
                                 <div className="modal-footer">
                                     <button
@@ -344,73 +354,12 @@ function Order() {
                                     >
                                         Hủy bỏ
                                     </button>
-                                    <button type="button" className="btn btn-primary">
+                                    <button type='submit' className="btn btn-primary">
                                         Thêm mới
                                     </button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div
-                        className="modal fade"
-                        id="details_order"
-                        data-bs-backdrop="static"
-                        data-bs-keyboard="false"
-                        tabIndex={-1}
-                        aria-labelledby="staticBackdropLabel"
-                        aria-hidden="true"
-                    >
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h1 className="modal-title fs-5" id="detailsBackdropLabel">
-                                        Thông tin chi tiết
-                                    </h1>
-                                    <button
-                                        type="button"
-                                        className="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    />
-                                </div>
-                                <div className="modal-body">
-                                    <input type="hidden" id="id_order_add" />
-                                    <div className="mb-3">
-                                        <label htmlFor="phone" className="form-label">
-                                            Tên khách hàng
-                                        </label>
-                                        <input type="text" className="form-control" id="phone1" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="name_em_edit" className="form-label">
-                                            Địa chỉ nhận hàng
-                                        </label>
-                                        <input type="text" className="form-control" id="name_em_edit1" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="cate" className="form-label">
-                                            Số điện thoại
-                                        </label>
-                                        <input type="text" className="form-control" id="cate1" />
-                                    </div>
-                                    <select className="form-select" aria-label="Default select example">
-                                        <option selected="">Trạng thái</option>
-                                        <option value={1}>Chờ duyệt</option>
-                                        <option value={2}>Two</option>
-                                        <option value={3}>Three</option>
-                                    </select>
-                                </div>
-                                <div className="modal-footer">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        data-bs-dismiss="modal"
-                                    >
-                                        Hủy bỏ
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </>
 
@@ -420,4 +369,4 @@ function Order() {
     );
 }
 
-export default Order;
+export default Permisstion;

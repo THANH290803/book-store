@@ -5,10 +5,9 @@ import Footer from "../../Component/footer";
 import Table from 'react-bootstrap/Table';
 
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 
 
-function Category() {
+function SubCategory() {
 
     const [categories, setCategories] = useState([]);
 
@@ -186,7 +185,7 @@ function Category() {
                                                 marginLeft: 10
                                             }}
                                         >
-                                            <div>Quản lý thông tin danh mục</div>
+                                            <div>Quản lý thông tin danh mục con</div>
                                             <div />
                                             <div style={{ marginLeft: 750 }}>
                                                 <div id="current-time" />
@@ -249,9 +248,9 @@ function Category() {
                                                                 <button className="btn btn-danger" style={{ marginRight: "15px" }} onClick={() => handleDeleteCategory(category.Id)}>
                                                                     <i className="fa-solid fa-trash" />
                                                                 </button>
-                                                                <Link to={'/Subcategories/' + category.Id} className="btn btn-info">
+                                                                <button className="btn btn-info">
                                                                     <i class="fa-solid fa-circle-info"></i>
-                                                                </Link>
+                                                                </button>
                                                             </td>
                                                         </tr>
 
@@ -382,4 +381,4 @@ function Category() {
     );
 }
 
-export default Category;
+export default SubCategory;
