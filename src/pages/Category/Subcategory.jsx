@@ -3,38 +3,47 @@ import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
 import Table from 'react-bootstrap/Table';
+import './styles.css'
+import { useParams } from 'react-router-dom';
 
 import axios from 'axios';
 
 
 function SubCategory() {
 
-    const [categories, setCategories] = useState([]);
+    const { id } = useParams();
+    // console.log(id);
+    const [categories, setCategory] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchCategoryDetails = async () => {
             try {
-                const response = await axios.get('https://localhost:44372/api/Category');
-                setCategories(response.data);
+                const response = await axios.get(`https://localhost:44372/api/Category/subcategories/id=${id}`);
+                setCategory(response.data);
+
+                // console.log(response.data);
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching category details:', error);
             }
         };
 
-        fetchData();
-    }, []);
+        fetchCategoryDetails();
+    }, [id]);
 
     const [name, setName] = useState('');
-    const [parentId, setParentId] = useState(null);
+    const [parentId, setParentId] = useState(id);
+    // console.log(parentId);
 
-    const handleSubmit = async () => {
-        // e.preventDefault();
+    const handleSubmitSub = async (e) => {
+        e.preventDefault();
 
         try {
             const response = await axios.post('https://localhost:44372/api/Category', {
                 name: name,
-                parent_id: parentId
+                parentId: parentId
             });
+
+            // console.log(response.data);
 
             window.location.reload();
 
@@ -43,6 +52,12 @@ function SubCategory() {
             console.error('Failed to add category:', error);
         }
     };
+
+    useEffect(() => {
+        setParentId(id); // Cập nhật parentId khi id thay đổi từ useParams()
+    }, [id]);
+
+    console.log("parentId:", parentId);
 
 
 
@@ -97,6 +112,10 @@ function SubCategory() {
             console.error('Error while deleting category:', error);
         }
     };
+
+    useEffect(() => {
+        startTime();
+    }, []);
 
     function startTime() {
         // Lấy Object ngày hiện tại
@@ -185,7 +204,7 @@ function SubCategory() {
                                                 marginLeft: 10
                                             }}
                                         >
-                                            <div>Quản lý thông tin danh mục con</div>
+                                            <div>Quản lý danh mục con</div>
                                             <div />
                                             <div style={{ marginLeft: 750 }}>
                                                 <div id="current-time" />
@@ -227,10 +246,10 @@ function SubCategory() {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-
-                                                    {categories.map((category, index) => (
-                                                        <tr key={index}>
-                                                            <td>{category.Name}</td>
+                                                    {categories && categories.map(category => (
+                                                        <tr key={category.Id}>
+                                                            <td>{category.Name}
+                                                            </td>
                                                             {/* <td>{category.ParentId.Name}</td> */}
                                                             <td>
                                                                 {/* Button trigger modal */}
@@ -245,18 +264,17 @@ function SubCategory() {
                                                                 >
                                                                     <i className="fa-regular fa-pen-to-square" />
                                                                 </button>
-                                                                <button className="btn btn-danger" style={{ marginRight: "15px" }} onClick={() => handleDeleteCategory(category.Id)}>
+                                                                <button className="btn btn-danger" style={{ marginRight: "15px" }}
+                                                                    onClick={() => handleDeleteCategory(category.Id)}
+                                                                >
                                                                     <i className="fa-solid fa-trash" />
-                                                                </button>
-                                                                <button className="btn btn-info">
-                                                                    <i class="fa-solid fa-circle-info"></i>
                                                                 </button>
                                                             </td>
                                                         </tr>
 
                                                     ))}
-
-
+                                                    {/* </>
+                                                    )} */}
 
                                                 </tbody>
 
@@ -335,7 +353,7 @@ function SubCategory() {
                             aria-hidden="true"
                         >
                             <div className="modal-dialog">
-                                <form className="modal-content" onSubmit={handleSubmit}>
+                                <form className="modal-content" onSubmit={handleSubmitSub}>
                                     <div className="modal-header">
                                         <h1 className="modal-title fs-5" id="addBackdropLabel">
                                             Thêm danh mục
@@ -354,6 +372,13 @@ function SubCategory() {
                                                 Tên danh mục mới
                                             </label>
                                             <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} />
+
+                                        </div>
+                                        <div className="mb-3">
+                                            {/* <label htmlFor="name_pay_add" className="form-label">
+                                                Tên danh mục mới
+                                            </label> */}
+                                            <input type="hidden" className="form-control" value={parentId} />
 
                                         </div>
                                     </div>

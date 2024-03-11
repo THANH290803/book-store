@@ -100,7 +100,7 @@ function Book() {
 
                     <main>
                         <div className="container-fluid px-4">
-                            <h1 className="mt-4">Quản lý thông tin sách</h1>
+                            {/* <h1 className="mt-4">Quản lý thông tin sách</h1> */}
                             <div
                                 className="card border-left-primary shadow h-100 py-1"
                                 style={{
@@ -119,7 +119,7 @@ function Book() {
                                             marginLeft: 10
                                         }}
                                     >
-                                        <div>Bảng điều khiển</div>
+                                        <div>Quản lý thông tin sách</div>
                                         <div />
                                         <div style={{ marginLeft: 750 }}>
                                             <div id="current-time" />
@@ -191,7 +191,7 @@ function Book() {
                                                             <button className="btn btn-danger" onClick={() => handleDeleteCategory(book.Id)} style={{ marginRight: '15px' }}>
                                                                 <i className="fa-solid fa-trash" />
                                                             </button>
-                                                            <button
+                                                            {/* <button
                                                                 type="button"
                                                                 className="btn btn-info"
                                                                 data-bs-toggle="modal"
@@ -202,7 +202,7 @@ function Book() {
                                                                     className="fa-solid fa-circle-info"
                                                                     style={{ color: "white" }}
                                                                 />
-                                                            </button>
+                                                            </button> */}
                                                         </td>
                                                     </tr>
                                                 ))}

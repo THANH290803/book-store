@@ -99,6 +99,10 @@ function Category() {
         }
     };
 
+    useEffect(() => {
+        startTime();
+    }, []);
+
     function startTime() {
         // Lấy Object ngày hiện tại
         const today = new Date();

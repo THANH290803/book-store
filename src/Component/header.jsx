@@ -28,6 +28,13 @@ class Header extends React.Component {
         );
     };
 
+    handleLogout = () => {
+        // Clear localStorage
+        localStorage.removeItem("loggedIn");
+        // Redirect to login page
+        window.location.href = "/login";
+    };
+
     render() {
         return (
             <div>
@@ -96,7 +103,7 @@ class Header extends React.Component {
                                 >
                                     Hủy bỏ
                                 </button>
-                                <a type="button" className="btn btn-danger" href="/login">
+                                <a type="button" className="btn btn-danger" onClick={this.handleLogout}>
                                     Xác nhận
                                 </a>
                             </div>
