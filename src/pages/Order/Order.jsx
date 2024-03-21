@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
+import axios from 'axios';
 
 function Order() {
     const [orders, setOrders] = useState([]);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState(0);
 
     useEffect(() => {
         fetch('https://localhost:44372/api/Order')
@@ -12,6 +15,22 @@ function Order() {
             .then(data => setOrders(data))
             .catch(error => console.error('Error fetching orders:', error));
     }, []);
+
+    const handleApproveOrder = async (id) => {
+        try {
+            const response = await axios.put(`https://localhost:44372/api/Order/id=${id}`);
+            if (response.data) {
+                setSelectedOrder(response.data);
+                setSelectedStatus(response.data.Status);
+            } else {
+                console.error("No data returned from the API");
+            }
+
+            window.location.reload();
+        } catch (error) {
+            console.error("Error approving order:", error);
+        }
+    };
 
     useEffect(() => {
         startTime();
@@ -141,7 +160,7 @@ function Order() {
                                                     <tr>
                                                         <td key={order.id}>
                                                             {(() => {
-                                                                if (order.NameCustomer == null) {
+                                                                if (order.NameCustomer === null) {
                                                                     return order.CustomerName;
                                                                 } else {
                                                                     return order.NameCustomer;
@@ -150,7 +169,7 @@ function Order() {
                                                         </td>
                                                         <td>
                                                             {(() => {
-                                                                if (order.PhoneNumber == null) {
+                                                                if (order.PhoneNumber === null) {
                                                                     return order.CustomerPhone;
                                                                 } else {
                                                                     return order.PhoneNumber;
@@ -159,7 +178,7 @@ function Order() {
                                                         </td>
                                                         <td>
                                                             {(() => {
-                                                                if (order.Address == null) {
+                                                                if (order.Address === null) {
                                                                     return order.CustomerAddress;
                                                                 } else {
                                                                     return order.Address;
@@ -195,10 +214,11 @@ function Order() {
                                                                 />
                                                             </button>
                                                             <button
-                                                                type="button"
+                                                                type="submit"
                                                                 className="btn btn-success"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#edit_order"
+                                                                // data-bs-toggle="modal"
+                                                                // data-bs-target="#edit_order"
+                                                                onClick={() => handleApproveOrder(order.Id)}
                                                             >
                                                                 <i className="fa-regular fa-pen-to-square" />
                                                             </button>
@@ -221,7 +241,7 @@ function Order() {
 
                 {/*Modal*/}
 
-                <div
+                {/* <div
                     className="modal fade"
                     id="edit_order"
                     data-bs-backdrop="static"
@@ -412,7 +432,7 @@ function Order() {
                             </div>
                         </div>
                     </div>
-                </>
+                </> */}
 
                 {/*Modal*/}
             </div>

@@ -146,6 +146,8 @@ function Role() {
         return i;
     }
 
+    const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+
     return (
         <div className="sb-nav-fixed" onLoad={startTime}>
             <Header />
@@ -192,6 +194,7 @@ function Role() {
                                             <div style={{ marginTop: 5 }}>
                                                 <i className="fa-solid fa-receipt" /> Vai trò
                                             </div>
+                                            {CURRENT_TYPE_USER === "Admin" && (
                                             <div>
                                                 <button
                                                     type="button"
@@ -202,6 +205,7 @@ function Role() {
                                                     <i className="fa-solid fa-plus" /> Thêm vai trò
                                                 </button>
                                             </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="card-body">
@@ -209,13 +213,16 @@ function Role() {
                                             <thead>
                                                 <tr>
                                                     <th>Tên vai trò</th>
+                                                    {CURRENT_TYPE_USER === "Admin" && (
                                                     <th>Hành động</th>
+                                                    )}
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {roles.map((role) => (
                                                     <tr key={role.Id}>
                                                         <td>{role.Name}</td>
+                                                        {CURRENT_TYPE_USER === "Admin" && (
                                                         <td>
                                                             <button
                                                                 type="button"
@@ -231,6 +238,7 @@ function Role() {
                                                                 <i className="fa-solid fa-trash" />
                                                             </button>
                                                         </td>
+                                                        )}
                                                     </tr>
                                                 ))}
                                             </tbody>

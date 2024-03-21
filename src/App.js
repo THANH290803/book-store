@@ -12,12 +12,13 @@ import AddBook from "./pages/Book/AddBook";
 import EditBook from "./pages/Book/EditBook";
 import Role from "./pages/Role/Role";
 import Subcategories from "./pages/Category/Subcategory";
-import Permisstion from "./pages/Permisstion/Permisstion";
+import Permission from "./pages/Permisstion/Permisstion";
 import Login from "./pages/login";
 
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [roleName, setRoleName] = useState("");
 
   useEffect(() => {
     // Kiểm tra trạng thái đăng nhập của người dùng
@@ -29,23 +30,42 @@ function App() {
     }
   }, []);
 
+  function AdminElement({ children }) {
+    const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+
+    if (CURRENT_TYPE_USER === "Admin") {
+      return <>{children}</>;
+    } else {
+      return <Navigate to="/" />;
+    }
+  }
+
+  function UserElement({ children }) {
+    const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+    if (CURRENT_TYPE_USER === "Employee" || CURRENT_TYPE_USER === "Admin") {
+      return <>{children}</>;
+    } else {
+      return <Navigate to="/Login" />;
+    }
+  }
+
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={loggedIn ? <Index /> : <Navigate to="/login" />} />
-        <Route path="/category" element={loggedIn ? <Category /> : <Navigate to="/login" />} />
-        <Route path="/Subcategories/:id" element={loggedIn ? <Subcategories /> : <Navigate to="/login" />} />
-        <Route path="/Role" element={loggedIn ? <Role /> : <Navigate to="/login" />} />
+        <Route path="/category" element={loggedIn ? <UserElement><Category /></UserElement> : <Navigate to="/login" />} />
+        <Route path="/Subcategories/:id" element={loggedIn ? <UserElement><Subcategories /></UserElement> : <Navigate to="/" />} />
+        <Route path="/Role" element={loggedIn ? <AdminElement><Role /></AdminElement> : <Navigate to="/login" />} />
         <Route path="/employee" element={loggedIn ? <Employee /> : <Navigate to="/login" />} />
-        <Route path="/customer" element={loggedIn ? <Customer /> : <Navigate to="/login" />} />
-        <Route path="/order" element={loggedIn ? <Order /> : <Navigate to="/login" />} />
-        <Route path="/payment" element={loggedIn ? <Payment /> : <Navigate to="/login" />} />
-        <Route path="/book" element={loggedIn ? <Book /> : <Navigate to="/login" />} />
+        <Route path="/customer" element={loggedIn ? <UserElement><Customer /></UserElement> : <Navigate to="/login" />} />
+        <Route path="/order" element={loggedIn ? <UserElement><Order /></UserElement> : <Navigate to="/login" />} />
+        <Route path="/payment" element={loggedIn ? <UserElement><Payment /> </UserElement> : <Navigate to="/login" />} />
+        <Route path="/book" element={loggedIn ? <UserElement><Book /></UserElement> : <Navigate to="/login" />} />
         <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
         {/* <Route path="/Role" element={<Role />} /> */}
-        <Route path="/Permisstion" element={loggedIn ? <Permisstion /> : <Navigate to="/login" />} />
-        <Route path="/EditBook/:id" element={loggedIn ? <EditBook /> : <Navigate to="/login" />} />
-        <Route path="/AddBook" element={loggedIn ? <AddBook /> : <Navigate to="/login" />} />
+        <Route path="/Permisstion" element={loggedIn ? <AdminElement><Permission /></AdminElement> : <Navigate to="/login" />} />
+        <Route path="/EditBook/:id" element={loggedIn ? <UserElement><EditBook /></UserElement> : <Navigate to="/login" />} />
+        <Route path="/AddBook" element={loggedIn ? <UserElement><AddBook /></UserElement> : <Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   );

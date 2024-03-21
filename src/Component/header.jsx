@@ -1,5 +1,7 @@
 import React from "react";
 
+const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+
 class Header extends React.Component {
     componentDidMount() {
         // Toggle the side navigation
@@ -45,7 +47,7 @@ class Header extends React.Component {
                         href="/"
                         style={{ textAlign: "center" }}
                     >
-                        Admin
+                        {CURRENT_TYPE_USER}
                     </a>
                     {/* Sidebar Toggle*/}
                     <button

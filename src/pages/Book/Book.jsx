@@ -91,6 +91,8 @@ function Book() {
         return i;
     }
 
+    const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+
     return (
         <div className="sb-nav-fixed" onLoad={startTime}>
             <Header />
@@ -138,6 +140,7 @@ function Book() {
                                             <div style={{ marginTop: 5 }}>
                                                 <i className="fa-solid fa-book"></i> Sách
                                             </div>
+                                            {CURRENT_TYPE_USER === "Admin" && (
                                             <div>
                                                 <Link
                                                     to={"/AddBook"}
@@ -149,6 +152,7 @@ function Book() {
                                                     <i className="fa-solid fa-plus" style={{ paddingLeft: "10px" }}></i>Thêm sách
                                                 </Link>
                                             </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="card-body">
@@ -163,7 +167,9 @@ function Book() {
                                                     <th>Nhà xản xuất</th>
                                                     <th>Tác giả</th>
                                                     <th>Danh mục</th>
+                                                    {CURRENT_TYPE_USER === "Admin" && (
                                                     <th>Hành động</th>
+                                                    )}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -177,6 +183,7 @@ function Book() {
                                                         <td width={"150px"}>{book.Publisher}</td>
                                                         <td width={"250px"}>{book.Author}</td>
                                                         <td width={"150px"}>{book.CategoryName}</td>
+                                                        {CURRENT_TYPE_USER === "Admin" && (
                                                         <td width={'225px'}>
                                                             <Link to={'/EditBook/' + book.Id}
                                                                 type="button"
@@ -204,6 +211,7 @@ function Book() {
                                                                 />
                                                             </button> */}
                                                         </td>
+                                                        )}
                                                     </tr>
                                                 ))}
                                             </tbody>

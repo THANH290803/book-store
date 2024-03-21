@@ -8,7 +8,19 @@ import { useParams } from 'react-router-dom';
 
 function EditBook() {
     const { id } = useParams();
-    const [book, setBook] = useState(null);
+    const [book, setBook] = useState({
+        id: '',
+        isbn: '',
+        name: '',
+        price: 0,
+        description: '',
+        imageUrl: '',
+        publishYear: '',
+        publisher: '',
+        author: '',
+        categoryId: 0,
+        categoryName: '',
+    });
 
     const [categoryName, setCategoryName] = useState(null);
     const [categoryId, setCategoryId] = useState(0);
@@ -23,12 +35,25 @@ function EditBook() {
     }, []);
 
     useEffect(() => {
+        // Thiết lập giá trị mặc định cho categoryId và categoryName
+        if (categoryOptions.length > 0 && book.categoryId) {
+            const selectedCategory = categoryOptions.find(option => option.Id === parseInt(book.CategoryId));
+            if (selectedCategory) {
+                setCategoryName(selectedCategory.name);
+            }
+        }
+    }, [book.categoryId, categoryOptions]);
+
+
+    useEffect(() => {
         const fetchBookDetails = async () => {
             try {
                 const response = await fetch(`https://localhost:44372/api/Book/id=${id}`);
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(data);
                     setBook(data);
+                    setCategoryId(data.CategoryId);
                 } else {
                     console.error('Failed to fetch book details:', response.statusText);
                 }
@@ -39,6 +64,34 @@ function EditBook() {
 
         fetchBookDetails();
     }, [id]);
+
+    const handleCategoryChange = (e) => {
+        const selectedCategoryId = parseInt(e.target.value);
+        const selectedCategory = categoryOptions.find((category) => category.Id === selectedCategoryId);
+        if (selectedCategory) {
+            setBook({
+                ...book,
+                CategoryId: selectedCategoryId,
+                CategoryName: selectedCategory.Name
+            });
+        } else {
+            console.error('Selected category not found:', selectedCategoryId);
+        }
+    };
+
+
+
+
+    const handleFormSubmit = async () => {
+        // e.preventDefault();
+        try {
+            await axios.put(`https://localhost:44372/api/Book/id=${id}`, book);
+
+            // Redirect to book details page or do something else
+        } catch (error) {
+            console.error('Error updating book:', error);
+        }
+    };
 
 
     useEffect(() => {
@@ -104,7 +157,7 @@ function EditBook() {
         return i;
     }
 
-    // const [selectedImage, setSelectedImage] = useState(null);
+    // const [selectedImage, setSelectedImage] = useState('');
 
     // const handleImageChange = (e) => {
     //     const file = e.target.files[0];
@@ -116,6 +169,13 @@ function EditBook() {
     //         reader.readAsDataURL(file);
     //     }
     // };
+
+    // // Thiết lập giá trị mặc định cho hình ảnh khi có giá trị trong book.ImageUrl
+    // useEffect(() => {
+    //     if (book.ImageUrl) {
+    //         setSelectedImage(book.ImageUrl);
+    //     }
+    // }, [book.ImageUrl]);
 
     return (
         <div className="sb-nav-fixed" onLoad={startTime}>
@@ -167,24 +227,25 @@ function EditBook() {
                                             </div>
                                         </div>
                                     </div>
-                                    <form className="card-body">
+                                    <form className="card-body" onSubmit={handleFormSubmit}>
+                                        <input type="hidden" className="form-control" value={book ? book.Id : ''} />
                                         <div className="mb-3">
                                             <label htmlFor="isbn1" className="form-label">
                                                 Mã ISBN
                                             </label>
-                                            <input type="text" className="form-control" value={book ? book.Isbn : ''} />
+                                            <input type="text" className="form-control" value={book ? book.Isbn : ''} onChange={e => setBook({ ...book, Isbn: e.target.value })} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="name_book_edit" className="form-label">
                                                 Tên sách
                                             </label>
-                                            <input type="text" className="form-control" value={book ? book.Name : ''} />
+                                            <input type="text" className="form-control" value={book ? book.Name : ''} onChange={e => setBook({ ...book, Name: e.target.value })} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="price1" className="form-label">
                                                 Giá
                                             </label>
-                                            <input type="number" className="form-control" value={book ? book.Price : ''} />
+                                            <input type="number" className="form-control" value={book ? book.Price : ''} onChange={e => setBook({ ...book, Price: e.target.value })} />
                                         </div>
                                         <div className="mb-3">
                                             <label className="form-label" htmlFor="inputGroupFile02">
@@ -195,25 +256,28 @@ function EditBook() {
                                                     <img src={selectedImage} alt="Selected" style={{ maxWidth: '100%', marginBottom: "15px" }} />
                                                 </div>
                                             )} */}
-                                            <input type="file" className="form-control" />
+                                            {book && book.ImageUrl && (
+                                                <img src={'/assets/img/' + book.ImageUrl} style={{ maxWidth: '100%', marginBottom: "15px" }} alt="Book Image" />
+                                            )}
+                                            <input type="file" className="form-control" onChange={e => setBook({ ...book, ImageUrl: e.target.value })} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="publisher1" className="form-label">
                                                 Nhà xuất bản
                                             </label>
-                                            <input type="text" className="form-control" value={book ? book.Publisher : ''} />
+                                            <input type="text" className="form-control" value={book ? book.Publisher : ''} onChange={e => setBook({ ...book, Publisher: e.target.value })} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="author1" className="form-label">
                                                 Tác giả
                                             </label>
-                                            <input type="text" className="form-control" value={book ? book.Author : ''} />
+                                            <input type="text" className="form-control" value={book ? book.Author : ''} onChange={e => setBook({ ...book, Author: e.target.value })} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="author1" className="form-label">
                                                 Năm xuất bản
                                             </label>
-                                            <input type="text" className="form-control" value={book ? book.PublishYear : ''} />
+                                            <input type="text" className="form-control" value={book ? book.PublishYear : ''} onChange={e => setBook({ ...book, PublishYear: e.target.value })} />
                                         </div>
                                         <div className="mb-3">
                                             <label htmlFor="cate1" className="form-label">
@@ -221,20 +285,15 @@ function EditBook() {
                                             </label>
                                             <select
                                                 className="form-select"
-                                                value={categoryId}
-                                                onChange={(e) => {
-                                                    setCategoryId(e.target.value);
-                                                    const selectedCategory = categoryOptions.find(option => option.id === parseInt(e.target.value));
-                                                    setCategoryName(selectedCategory ? selectedCategory.name : null);
-                                                }}
+                                                value={book ? book.CategoryId : ''}
+                                                onChange={handleCategoryChange}
                                                 required
                                             >
                                                 <option value={0}>-- Chọn danh mục --</option>
                                                 {categoryOptions.map(option => (
                                                     <option
-                                                        key={option.id}
-                                                        value={option.id}
-                                                        selected={book.CategoryId == option.Id} // Set selected attribute conditionally
+                                                        key={option.Id}
+                                                        value={option.Id}
                                                     >
                                                         {option.Name}
                                                     </option>
@@ -245,7 +304,7 @@ function EditBook() {
                                             <label htmlFor="des1" className="form-label">
                                                 Mô tả
                                             </label>
-                                            <textarea type="text" className="form-control" value={book ? book.Description : ''}></textarea>
+                                            <textarea type="text" className="form-control" value={book ? (book.Description || '') : ''} onChange={e => setBook({ ...book, Description: e.target.value })}></textarea>
                                         </div>
                                         <div className="mb-3">
                                             {/* <label htmlFor="author1" className="form-label">

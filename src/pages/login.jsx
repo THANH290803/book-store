@@ -5,7 +5,6 @@ import axios from 'axios';
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [loggedIn, setLoggedIn] = useState(localStorage.getItem('loggedIn') === 'true');
     const [error, setError] = useState('');
 
     const handleUsernameChange = (e) => {
@@ -23,8 +22,17 @@ function Login() {
                 password,
             });
             console.log(response.data);
-            localStorage.setItem('loggedIn', true);
-            window.location.replace('/');
+
+            if (response.data.success) {
+                localStorage.setItem('roleName', response.data.roleName)
+                localStorage.setItem('loggedIn', true);
+
+                alert(localStorage.getItem('roleName'))
+                window.location.reload();
+            }
+            else {
+                console.log("Login failed:", response); // Log response để kiểm tra lỗi
+            }
         } catch (error) {
             console.error('Login error:', error);
             setError('Invalid username or password.');

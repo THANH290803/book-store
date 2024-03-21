@@ -146,6 +146,8 @@ function Permisstion() {
         return i;
     }
 
+    const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+
     return (
         <div className="sb-nav-fixed" onLoad={startTime}>
             <Header />
@@ -192,6 +194,7 @@ function Permisstion() {
                                             <div style={{ marginTop: 5 }}>
                                                 <i className="fa-solid fa-receipt" /> Vai trò
                                             </div>
+                                            {CURRENT_TYPE_USER === "Admin" && (
                                             <div>
                                                 <button
                                                     type="button"
@@ -202,6 +205,7 @@ function Permisstion() {
                                                     <i className="fa-solid fa-plus" /> Thêm quyền
                                                 </button>
                                             </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="card-body">
@@ -216,6 +220,7 @@ function Permisstion() {
                                                 {permisstions.map((permisstion) => (
                                                     <tr key={permisstion.Id}>
                                                         <td>{permisstion.Name}</td>
+                                                        {CURRENT_TYPE_USER === "Admin" && (
                                                         <td>
                                                             <button
                                                                 type="button"
@@ -233,6 +238,7 @@ function Permisstion() {
                                                                 <i className="fa-solid fa-trash" />
                                                             </button>
                                                         </td>
+                                                        )}
                                                     </tr>
                                                 ))}
                                             </tbody>

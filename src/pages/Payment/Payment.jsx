@@ -145,6 +145,8 @@ function Payment() {
         return i;
     }
 
+    const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+
     return (
         <div className="sb-nav-fixed" onLoad={startTime}>
             <Header />
@@ -192,6 +194,7 @@ function Payment() {
                                                 <i className="fa-solid fa-money-bill-wave" />
                                                 Phương thức thanh toán
                                             </div>
+                                            {CURRENT_TYPE_USER === "Admin" && (
                                             <div>
                                                 <button
                                                     type="button"
@@ -203,6 +206,7 @@ function Payment() {
                                                     Thêm phương thức
                                                 </button>
                                             </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="card-body">
@@ -210,13 +214,16 @@ function Payment() {
                                             <thead>
                                                 <tr>
                                                     <th>Tên phương thức</th>
+                                                    {CURRENT_TYPE_USER === "Admin" && (
                                                     <th>Hành động</th>
+                                                    )}
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {payments.map(payment => (
                                                     <tr key={payment.Id}>
                                                         <td>{payment.Name}</td>
+                                                        {CURRENT_TYPE_USER === "Admin" && (
                                                         <td>
                                                             {/* Button trigger modal */}
                                                             <button
@@ -233,6 +240,7 @@ function Payment() {
                                                                 <i className="fa-solid fa-trash" />
                                                             </button>
                                                         </td>
+                                                        )}
                                                     </tr>
                                                 ))}
                                             </tbody>

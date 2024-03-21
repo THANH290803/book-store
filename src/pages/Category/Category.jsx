@@ -162,6 +162,8 @@ function Category() {
         return i;
     }
 
+    const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+
     return (
         <Fragment>
             <div className="sb-nav-fixed" onLoad={startTime}>
@@ -210,17 +212,19 @@ function Category() {
                                                     <i className="fa-solid fa-table-list" />
                                                     Danh mục
                                                 </div>
-                                                <div>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-primary add-payment"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#addcategory"
-                                                    >
-                                                        <i className="fa-solid fa-plus" />
-                                                        Thêm danh mục
-                                                    </button>
-                                                </div>
+                                                {CURRENT_TYPE_USER === "Admin" && (
+                                                    <div>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-primary add-payment"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#addcategory"
+                                                        >
+                                                            <i className="fa-solid fa-plus" />
+                                                            Thêm danh mục
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="card-body">
@@ -228,7 +232,9 @@ function Category() {
                                                 <thead>
                                                     <tr>
                                                         <th>Tên danh mục</th>
+                                                        {/* {CURRENT_TYPE_USER === "Admin" && ( */}
                                                         <th>Hành động</th>
+                                                        {/* )} */}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -239,20 +245,24 @@ function Category() {
                                                             {/* <td>{category.ParentId.Name}</td> */}
                                                             <td>
                                                                 {/* Button trigger modal */}
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn btn-warning"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#editcategory"
-                                                                    style={{ marginRight: "15px" }}
-                                                                    onClick={() => handleEditButtonClick(category.Id)}
+                                                                {CURRENT_TYPE_USER === "Admin" && (
+                                                                    <>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn btn-warning"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#editcategory"
+                                                                            style={{ marginRight: "15px" }}
+                                                                            onClick={() => handleEditButtonClick(category.Id)}
 
-                                                                >
-                                                                    <i className="fa-regular fa-pen-to-square" />
-                                                                </button>
-                                                                <button className="btn btn-danger" style={{ marginRight: "15px" }} onClick={() => handleDeleteCategory(category.Id)}>
-                                                                    <i className="fa-solid fa-trash" />
-                                                                </button>
+                                                                        >
+                                                                            <i className="fa-regular fa-pen-to-square" />
+                                                                        </button>
+                                                                        <button className="btn btn-danger" style={{ marginRight: "15px" }} onClick={() => handleDeleteCategory(category.Id)}>
+                                                                            <i className="fa-solid fa-trash" />
+                                                                        </button>
+                                                                    </>
+                                                                )}
                                                                 <Link to={'/Subcategories/' + category.Id} className="btn btn-info">
                                                                     <i class="fa-solid fa-circle-info"></i>
                                                                 </Link>

@@ -3,6 +3,8 @@ import Header from "../../Component/header";
 import Navbar from "../../Component/nav";
 import Footer from "../../Component/footer";
 import axios from 'axios';
+import { Navigate, useNavigate } from 'react-router-dom';
+
 
 function Employee() {
     const [admins, setAdmins] = useState([]);
@@ -64,7 +66,16 @@ function Employee() {
         }
     };
 
-    const [selectedAdmin, setSelectedAdmin] = useState(null);
+    const [selectedAdmin, setSelectedAdmin] = useState({
+        id: '',
+        fullName: '',
+        username: '',
+        email: '',
+        password: '',
+        roleId: 0, // Khởi tạo với giá trị mặc định
+        roleName: '',
+    });
+
 
     const handleEditButtonClick = async (id) => {
         try {
@@ -80,38 +91,26 @@ function Employee() {
         }
     };
 
-    const handleNameChange = (e) => {
-        setSelectedAdmin({ ...selectedAdmin, Username: e.target.value });
-        // setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
-    };
-
-    const handlePasswordChange = (e) => {
-        setSelectedAdmin({ ...selectedAdmin, Password: e.target.value });
-        // setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
-    };
-
-    const handleEmailChange = (e) => {
-        setSelectedAdmin({ ...selectedAdmin, Email: e.target.value });
-        // setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
-    };
-
-    const handleFullNameChange = (e) => {
-        setSelectedAdmin({ ...selectedAdmin, FullName: e.target.value });
-        // setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
-    };
-
-    const handleRoleIdChange = (e) => {
-        setSelectedAdmin({ ...selectedAdmin, RoleId: e.target.value });
+    const handleEditRoleChange = (e) => {
+        const selectedRoleName = e.target.value;
+        const selectedRole = roleOptions.find((role) => role.Name === selectedRoleName);
+        if (selectedRole) {
+            setSelectedAdmin({ ...selectedAdmin, RoleName: selectedRoleName, RoleId: selectedRole.Id });
+        }
     };
 
     const handleSaveChanges = async () => {
         try {
             await axios.put(`https://localhost:44372/api/Admin/id=${selectedAdmin.Id}`, selectedAdmin);
-            window.location.reload();
+            // window.location.reload();
+            // Navigate('/customer');
         } catch (error) {
             console.error('Error while saving changes:', error);
         }
+
+        console.log(selectedAdmin);
     };
+
 
 
     const handleDeleteCategory = async (id) => {
@@ -189,6 +188,8 @@ function Employee() {
         return i;
     }
 
+    const CURRENT_TYPE_USER = localStorage.getItem('roleName');
+
     return (
         <div className="sb-nav-fixed" onLoad={startTime}>
             <Header />
@@ -236,17 +237,19 @@ function Employee() {
                                                 <i className="fa-solid fa-users" />
                                                 Nhân viên
                                             </div>
-                                            <div>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-primary add-payment"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#addemployee"
-                                                >
-                                                    <i className="fa-solid fa-plus" />
-                                                    Thêm nhân viên
-                                                </button>
-                                            </div>
+                                            {CURRENT_TYPE_USER === "Admin" && (
+                                                <div>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-primary add-payment"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#addemployee"
+                                                    >
+                                                        <i className="fa-solid fa-plus" />
+                                                        Thêm nhân viên
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="card-body">
@@ -257,32 +260,36 @@ function Employee() {
                                                     <th>Username</th>
                                                     <th>Email</th>
                                                     <th>Quyền</th>
-                                                    <th>Hành động</th>
+                                                    {CURRENT_TYPE_USER === "Admin" && (
+                                                        <th>Hành động</th>
+                                                    )}
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {admins.map((admin) => (
-                                                    <tr>
+                                                    <tr key={admin.Id}>
                                                         <td>{admin.FullName}</td>
                                                         <td>{admin.Username}</td>
                                                         <td>{admin.Email}</td>
                                                         <td>{admin.RoleName}</td>
-                                                        <td>
-                                                            {/* Button trigger modal */}
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-success"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#editemployee"
-                                                                style={{ marginRight: "15px" }}
-                                                                onClick={() => handleEditButtonClick(admin.Id)}
-                                                            >
-                                                                <i className="fa-regular fa-pen-to-square" />
-                                                            </button>
-                                                            <button className="btn btn-danger" onClick={() => handleDeleteCategory(admin.Id)}>
-                                                                <i className="fa-solid fa-trash" />
-                                                            </button>
-                                                        </td>
+                                                        {CURRENT_TYPE_USER === "Admin" && (
+                                                            <td>
+                                                                {/* Button trigger modal */}
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-success"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#editemployee"
+                                                                    style={{ marginRight: "15px" }}
+                                                                    onClick={() => handleEditButtonClick(admin.Id)}
+                                                                >
+                                                                    <i className="fa-regular fa-pen-to-square" />
+                                                                </button>
+                                                                <button className="btn btn-danger" onClick={() => handleDeleteCategory(admin.Id)}>
+                                                                    <i className="fa-solid fa-trash" />
+                                                                </button>
+                                                            </td>
+                                                        )}
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -323,44 +330,45 @@ function Employee() {
                                     />
                                 </div>
                                 <div className="modal-body">
-                                    <input type="hidden" id="id_pay_edit" />
+                                    <input type="hidden" value={selectedAdmin?.Id} id="id_pay_edit" />
                                     <div className="mb-3">
                                         <label htmlFor="name_em_edit" className="form-label">
                                             Tên nhân viên
                                         </label>
-                                        <input type="text" className="form-control" value={selectedAdmin?.FullName} onChange={handleFullNameChange} />
+                                        <input type="text" className="form-control" value={selectedAdmin?.FullName}
+                                            onChange={(e) => setSelectedAdmin({ ...selectedAdmin, FullName: e.target.value })}
+                                        />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="phone" className="form-label">
                                             Username
                                         </label>
-                                        <input type="text" className="form-control" value={selectedAdmin?.Username} onChange={handleNameChange} />
+                                        <input type="text" className="form-control" value={selectedAdmin?.Username}
+                                            onChange={(e) => setSelectedAdmin({ ...selectedAdmin, Username: e.target.value })} />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="email" className="form-label">
                                             Email
                                         </label>
-                                        <input type="text" className="form-control" value={selectedAdmin?.Email} onChange={handleEmailChange} />
+                                        <input type="text" className="form-control" value={selectedAdmin?.Email}
+                                            onChange={(e) => setSelectedAdmin({ ...selectedAdmin, Email: e.target.value })} />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="phone" className="form-label">
                                             Password
                                         </label>
-                                        <input type="password" className="form-control" value={selectedAdmin?.Password} onChange={handlePasswordChange} />
+                                        <input type="password" className="form-control" value={selectedAdmin?.Password}
+                                            onChange={(e) => setSelectedAdmin({ ...selectedAdmin, Password: e.target.value })} />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="role" className="form-label">
                                             Quyền
                                         </label>
 
-                                        <select className="form-select" value={roleId} onChange={(e) => {
-                                            setRoleId(e.target.value);
-                                            const selectedRole = roleOptions.find(option => option.Id === parseInt(e.target.value));
-                                            setRoleName(selectedRole ? selectedRole.Name : null);
-                                        }} required>
+                                        < select className="form-select" value={selectedAdmin?.RoleName} onChange={handleEditRoleChange} required>
                                             <option value={0}>-- Chọn vai trò --</option>
                                             {roleOptions.map(option => (
-                                                <option key={option.Id} value={option.Id}>{option.Name}</option>
+                                                <option key={option.Id} value={option.Name}>{option.Name}</option>
                                             ))}
                                         </select>
                                     </div>
